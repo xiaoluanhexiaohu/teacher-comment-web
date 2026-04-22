@@ -2,9 +2,9 @@ import { randomUUID } from 'crypto';
 import type { ClassEntity, GeneratedComment, GenerationJob, Student, Template, User } from '@/lib/types';
 
 export const users: User[] = [
-  { id: 'u-admin', email: 'admin@school.cn', role: 'admin', name: '系统管理员', school_name: '示范小学' },
-  { id: 'u-t1', email: 'zhang@school.cn', role: 'teacher', name: '张老师', school_name: '示范小学' },
-  { id: 'u-t2', email: 'li@school.cn', role: 'teacher', name: '李老师', school_name: '示范小学' }
+  { id: 'u-admin', email: 'admin@school.cn', role: 'admin', membership: 'member', name: '系统管理员', school_name: '示范小学', password_hash: 'salt1234:c2a8bd50bae4b4458b7ed92125f917a9a122ceb04facf6d2a7f03ac9f541026c773afde3e1bee08bf5f9206f5ccd6562e0cf13fb0bf742b49938944dccaa93cc' },
+  { id: 'u-t1', email: 'zhang@school.cn', role: 'teacher', membership: 'member', name: '张老师', school_name: '示范小学', password_hash: 'salt1234:c2a8bd50bae4b4458b7ed92125f917a9a122ceb04facf6d2a7f03ac9f541026c773afde3e1bee08bf5f9206f5ccd6562e0cf13fb0bf742b49938944dccaa93cc' },
+  { id: 'u-t2', email: 'li@school.cn', role: 'teacher', membership: 'non_member', name: '李老师', school_name: '示范小学', password_hash: 'salt1234:c2a8bd50bae4b4458b7ed92125f917a9a122ceb04facf6d2a7f03ac9f541026c773afde3e1bee08bf5f9206f5ccd6562e0cf13fb0bf742b49938944dccaa93cc' }
 ];
 export const classes: ClassEntity[] = [
   { id: 'c1', teacher_id: 'u-t1', grade: '五年级', class_name: '五年级一班', academic_year: '2025-2026' },
@@ -25,7 +25,8 @@ export const students: Student[] = Array.from({ length: 20 }, (_, i) => ({
   weaknesses: '审题细致度有待提升',
   performance_summary: '课堂整体表现认真，能主动回答问题',
   homework_status: '按时完成，偶有错题',
-  teacher_notes: '建议持续阅读与错题整理'
+  teacher_notes: '建议持续阅读与错题整理',
+  personality_tags: i % 3 === 0 ? ['课堂积极', '作业认真'] : ['需要鼓励']
 }));
 
 export const templates: Template[] = [
@@ -45,6 +46,7 @@ export const generatedComments: GeneratedComment[] = Array.from({ length: 10 }, 
   draft_comment: `学生${i + 1}表现认真，建议继续加强阅读理解能力。`,
   final_comment: `学生${i + 1}在本阶段学习中态度端正、作业完成及时，课堂参与积极。建议继续加强阅读理解训练，注重审题细节，相信在老师与家长共同支持下会取得更大进步。`,
   output_structured: { summary_style: '综合型', strengths: '课堂参与积极', improvements: '审题细节需加强', parent_suggestion: '增加亲子阅读', final_comment: '...' },
+  tags_snapshot: i % 2 === 0 ? ['课堂积极'] : ['需要鼓励'],
   created_at: new Date(Date.now() - i * 86400000).toISOString()
 }));
 

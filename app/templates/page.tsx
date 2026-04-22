@@ -9,7 +9,7 @@ import { templates } from '@/lib/mock-db';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { Template } from '@/lib/types';
 
-export default function TemplatesPage(): JSX.Element {
+export default function TemplatesPage(): React.JSX.Element {
   const [keyword, setKeyword] = useState('');
   const data = useMemo(() => templates.filter((t) => t.title.includes(keyword)), [keyword]);
   const columns: ColumnDef<Template>[] = [

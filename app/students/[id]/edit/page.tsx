@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/page-header';
 import { StudentForm } from '@/components/student-form';
 import { students } from '@/lib/mock-db';
 
-export default function EditStudentPage({ params }: { params: { id: string } }): JSX.Element {
+export default function EditStudentPage({ params }: { params: { id: string } }): React.JSX.Element {
   const router = useRouter();
   const s = students.find((x) => x.id === params.id);
   if (!s) return <div>学生不存在</div>;

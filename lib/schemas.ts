@@ -1,6 +1,14 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({ email: z.string().email(), password: z.string().min(6) });
+
+export const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8, '密码至少 8 位'),
+  name: z.string().min(2, '姓名至少 2 个字符'),
+  schoolName: z.string().optional()
+});
+
 export const templateSchema = z.object({
   title: z.string().min(2),
   grade: z.string().optional(),
@@ -11,6 +19,7 @@ export const templateSchema = z.object({
   isPublic: z.boolean().default(false),
   isEnabled: z.boolean().default(true)
 });
+
 export const studentSchema = z.object({
   classId: z.string().min(1),
   studentNo: z.string().optional(),
@@ -23,6 +32,14 @@ export const studentSchema = z.object({
   weaknesses: z.string().optional(),
   performanceSummary: z.string().optional(),
   homeworkStatus: z.string().optional(),
-  teacherNotes: z.string().optional()
+  teacherNotes: z.string().optional(),
+  personalityTags: z.array(z.string()).default([])
 });
-export const generatePreviewSchema = z.object({ studentId: z.string(), templateId: z.string(), promptPresetId: z.string().optional(), extraRequirements: z.string().optional() });
+
+export const generatePreviewSchema = z.object({
+  studentId: z.string(),
+  templateId: z.string(),
+  promptPresetId: z.string().optional(),
+  extraRequirements: z.string().optional(),
+  tags: z.array(z.string()).optional()
+});
