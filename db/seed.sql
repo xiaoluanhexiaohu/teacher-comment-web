@@ -12,3 +12,6 @@ insert into classes(id,teacher_id,grade,class_name,academic_year) values
 on conflict do nothing;
 
 -- TODO(seed): 可根据真实学校数据扩充为批量导入脚本。
+
+update users set membership='member' where email in ('admin@school.cn','zhang@school.cn');
+update users set membership='non_member' where email='li@school.cn';

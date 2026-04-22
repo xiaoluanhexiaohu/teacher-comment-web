@@ -101,3 +101,7 @@ create table if not exists audit_logs (
   id uuid primary key default gen_random_uuid(), user_id uuid references users(id), action varchar not null, target_type varchar not null,
   target_id uuid null, detail jsonb null, created_at timestamptz default now()
 );
+
+-- upgrade: membership + tags snapshot
+alter table users add column if not exists membership varchar not null default 'non_member';
+alter table generated_comments add column if not exists tags_snapshot text[] null;

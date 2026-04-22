@@ -1,2 +1,8 @@
 import { ok } from '@/lib/api';
-export async function POST() { return ok({ message: '已退出登录' }); }
+import { clearSessionCookie, destroySession } from '@/lib/auth';
+
+export async function POST() {
+  destroySession();
+  clearSessionCookie();
+  return ok({ message: '已退出登录' });
+}

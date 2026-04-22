@@ -414,3 +414,19 @@ http://localhost:3000
 - **“老师 30 分钟上手培训稿（可直接发微信群）”**
 - **“教务管理员部署 SOP（从建库到上线）”**
 - **“面向学校领导的功能演示脚本（含话术）”**
+
+## 新增能力（2026 升级）
+
+- Web + 微信小程序双端：Web 保持主站；新增 `miniapp/` MVP。
+- 新增注册、登录、退出、会话鉴权。
+- 新增会员模型（`membership`）并与角色（`role`）解耦。
+- 学生支持多选标签（复用 `students.personality_tags`），标签参与 AI prompt。
+- 历史记录保存标签快照（`generated_comments.tags_snapshot`）。
+- AI provider 抽象：`mock` / `openai` / `compatible`。
+
+## 演示账号
+
+- 会员：`zhang@school.cn / 12345678`
+- 非会员：`li@school.cn / 12345678`
+
+详细文档见 `docs/`。
