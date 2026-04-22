@@ -1,104 +1,416 @@
-# GeminiProChat
+# Teacher Comment Studio（教师评语模板网站）
 
-Minimal web UI for GeminiPro Chat.
+> 面向中小学教师的评语管理后台 + AI 评语生成工具。  
+> 本项目当前为 **MVP 演示版**，优先保证流程完整、页面可操作、接口可联调。
 
-Live demo: [Gemini Pro Chat](https://www.geminiprochat.com)
+---
 
-[![image](https://github.com/babaohuang/GeminiProChat/assets/559171/d02fd440-401a-410d-a112-4b10935624c6)](https://www.geminiprochat.com)
+## 0. 你将获得什么
 
-## Acknowledgements
+这个系统可以帮你：
 
-This project is inspired by and based on the following open-source project:
+1. 管理评语模板（按年级/学科/风格分类）
+2. 管理学生资料（支持批量导入）
+3. 一键 AI 生成评语（单个 / 批量）
+4. 人工二次编辑后保存
+5. 导出 Word / PDF
+6. 查看历史记录并复用
 
-- [ChatGPT-Demo](https://github.com/anse-app/chatgpt-demo) - For the foundational codebase and features.
+---
 
+## 1. 技术栈
 
-## Running Locally
+- Next.js 15 + TypeScript（严格模式）
+- App Router
+- Tailwind CSS
+- React Hook Form + Zod
+- TanStack Table
+- OpenAI Responses API（结构化 JSON 输出）
+- Supabase（通过 SQL 初始化）
 
-### Pre environment
-1. **Node**: Check that both your development environment and deployment environment are using `Node v18` or later. You can use [nvm](https://github.com/nvm-sh/nvm) to manage multiple `node` versions locally.
+---
 
-   ```bash
-    node -v
-   ```
+## 2. 目录结构（快速理解）
 
-2. **PNPM**: We recommend using [pnpm](https://pnpm.io/) to manage dependencies. If you have never installed pnpm, you can install it with the following command:
+```txt
+app/                     # 页面 + API
+  ├─ login/
+  ├─ dashboard/
+  ├─ templates/
+  ├─ students/
+  ├─ generate/
+  ├─ batch/
+  ├─ history/
+  ├─ exports/
+  ├─ settings/
+  └─ api/
+components/              # 可复用 UI 组件
+lib/                     # 业务逻辑（AI、schema、provider、mock 数据）
+db/                      # migration + seed SQL
+public/templates/        # 导入模板、导出模板示例文件
+scripts/                 # 预留脚本
+```
 
-   ```bash
-    npm i -g pnpm
-   ```
+---
 
-3. **GEMINI_API_KEY**: Before running this application, you need to obtain the API key from Google. You can register the API key at [https://makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey).
+## 3. 环境变量（逐项解释）
 
-### Getting Started
+复制：
 
-1. Install dependencies
+```bash
+cp .env.example .env.local
+```
 
-   ```bash
-    pnpm install
-   ```
+`.env.local` 示例：
 
-2. Copy the `.env.example` file, then rename it to `.env`, and add your [GEMINI API key](https://makersuite.google.com/app/apikey) to the `.env` file.
+```env
+NEXT_PUBLIC_APP_NAME=Teacher Comment Studio
+NEXT_PUBLIC_SUPABASE_URL=你的 Supabase URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=你的匿名 KEY
+SUPABASE_SERVICE_ROLE_KEY=你的服务端 KEY
+OPENAI_API_KEY=你的 OpenAI Key
+OPENAI_MODEL=gpt-4.1-mini
+DEFAULT_TEMPERATURE=0.7
+DEFAULT_MAX_OUTPUT_TOKENS=800
+```
 
-   ```bash
-    GEMINI_API_KEY=AIzaSy...
-   ```
+说明：
 
-3. Run the application, the local project runs on `http://localhost:3000/`
+- 未配置 `OPENAI_API_KEY` 时，系统会自动走 mock 输出（用于演示）。
+- `SUPABASE_*` 主要用于后续联动真实数据库与权限。
 
-   ```bash
-    pnpm run dev
-   ```
+---
 
-## Environment Variables
+## 4. 本地启动（保姆级）
 
-You can control the website through environment variables.
+### Step 1：安装 Node.js
 
-| Name | Description | Required |
-| --- | --- | --- |
-| `GEMINI_API_KEY` | Your API Key for GEMINI. You can get it from [here](https://makersuite.google.com/app/apikey).| **Yes** |
-| `API_BASE_URL` | Custom base url for GEMINI API. Click [here](https://github.com/babaohuang/GeminiProChat?tab=readme-ov-file#solution-for-user-location-is-not-supported-for-the-api-use) to see when to use this. | No |
-| `HEAD_SCRIPTS` | Inject analytics or other scripts before `</head>` of the page | No |
-| `PUBLIC_SECRET_KEY` | Secret string for the project. Use for generating signatures for API calls | No |
-| `SITE_PASSWORD` | Set password for site, support multiple password separated by comma. If not set, site will be public | No |
+建议 Node.js 20+（LTS）。
 
-## Deploy
+检查版本：
 
-### Deploy With Vercel(Recommended)
+```bash
+node -v
+npm -v
+```
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/babaohuang/GeminiProChat&env=GEMINI_API_KEY&envDescription=Google%20API%20Key%20for%20GeminiProChat&envLink=https://makersuite.google.com/app/apikey)
+### Step 2：安装依赖
 
-Just click the button above and follow the instructions to deploy your own copy of the app.
+```bash
+npm install
+```
 
-> [!NOTE]
-> #### Solution for "User location is not supported for the API use"
-> If you encounter the issue **"User location is not supported for the API use"**, follow these steps to resolve it:
->
-> 1. Go to this [**palm-proxy**](https://github.com/antergone/palm-proxy) repo and click **"Deploy With Vercel"**.
-> 2. Once the deployment is complete, you will receive a domain name assigned by Vercel (e.g., `https://xxx.vercel.app`).
-> 3. In your **Gemini Pro Chat** project, set an environment variable named `API_BASE_URL` with the value being the domain you got from deploying the gemini proxy (`https://xxx.vercel.app`).
-> 4. Redeploy your **Gemini Pro Chat** project to finalize the configuration. This should resolve the issue.
->
-> Thanks to [**antergone**](https://github.com/antergone/palm-proxy) for providing this solution.
+> 如果公司网络限制 npm registry，可配置镜像或私有源。
 
-### Deploy With Docker
+### Step 3：启动开发环境
 
-Although this project provides a Dockerfile, there is currently a known bug with the Docker deployment method. I am actively working on fixing this issue. Therefore, Docker deployment is not recommended at this moment. If any contributors have a solution to fix this bug, your contributions are highly welcomed. Please feel free to submit a Pull Request (PR) to help me resolve this issue.
+```bash
+npm run dev
+```
 
-## Star History
+浏览器打开：
 
-[![Star History Chart](https://api.star-history.com/svg?repos=babaohuang/geminiprochat&type=Timeline)](https://star-history.com/#babaohuang/geminiprochat&Timeline)
+```txt
+http://localhost:3000
+```
 
-## WeChat Official Account
+### Step 4：登录系统
 
-If you are interested in exploring AI, feel free to follow my WeChat Official Account!
+演示账号（统一密码：`123456`）：
 
-<img src="https://github.com/babaohuang/GeminiProChat/assets/559171/5503a4a0-fbbb-40c4-938f-06e61ba4186f" width="285" height="104">
+- 管理员：`admin@school.cn`
+- 教师 1：`zhang@school.cn`
+- 教师 2：`li@school.cn`
 
-## Support
+---
 
-If you like my project and would like to show your appreciation, you can scan the WeChat reward QR code below:
+## 5. 数据库初始化（Supabase）
 
-<img src="https://github.com/babaohuang/GeminiProChat/assets/559171/ed04a81b-48ff-4c17-92be-4ad290eb3de3" width="208" height="208">
+### Step 1：创建 Supabase 项目
 
-Thank you for your support!
+在 Supabase 控制台新建项目，得到：
+
+- Project URL
+- anon key
+- service_role key
+
+并填入 `.env.local`。
+
+### Step 2：执行建表 SQL
+
+打开 Supabase SQL Editor，执行：
+
+- `db/migration.sql`
+
+这会创建：
+
+- users
+- classes
+- students
+- templates
+- template_versions
+- prompt_presets
+- generation_jobs
+- generation_job_items
+- generated_comments
+- import_jobs
+- export_jobs
+- system_settings
+- audit_logs
+
+### Step 3：执行种子数据 SQL
+
+执行：
+
+- `db/seed.sql`
+
+会写入基础账号、班级等演示数据（可继续扩展）。
+
+---
+
+## 6. 功能使用教程（老师视角）
+
+下面按「第一次使用」来走一遍完整流程。
+
+---
+
+### 6.1 登录后先看仪表盘
+
+路径：`/dashboard`
+
+你会看到：
+
+- 模板总数
+- 学生总数
+- 本周生成次数
+- 最近生成记录
+
+建议先确认演示数据已加载。
+
+---
+
+### 6.2 模板管理（最重要）
+
+路径：`/templates`
+
+#### 新建模板
+
+1. 点击“新建模板”
+2. 输入模板标题
+3. 输入模板正文（建议写清语气和结构）
+4. 保存
+
+#### 推荐模板写法
+
+- 开头：肯定学生努力与进步
+- 中段：指出可提升点（温和）
+- 结尾：给家长协同建议
+
+#### 常见误区
+
+- 模板太空泛 → AI 容易输出重复话术
+- 模板风格不明确 → 结果不统一
+
+---
+
+### 6.3 学生管理
+
+路径：`/students`
+
+#### 手动新增
+
+1. 点“新建学生”
+2. 填基础信息（姓名、学号、班级）
+3. 填表现信息（优点/待改进/作业情况）
+4. 保存
+
+#### 批量导入
+
+路径：`/students/import`
+
+1. 下载模板：`public/templates/student_import_template.csv`
+2. 按模板填数据
+3. 上传并导入
+
+导入字段：
+
+- 班级
+- 学号
+- 姓名
+- 性别
+- 年级
+- 学科
+- 成绩
+- 优点
+- 待改进点
+- 课堂表现
+- 作业情况
+- 教师备注
+
+---
+
+### 6.4 单个评语生成（推荐先用）
+
+路径：`/generate`
+
+步骤：
+
+1. 选择学生
+2. 选择模板
+3. 填“附加要求”（例如“控制在 150 字，语气更温和”）
+4. 点击“生成评语”
+5. 右侧预览会显示最终评语
+6. 可手动修改润色
+7. 保存到历史，后续可导出
+
+你会得到结构化内容：
+
+- strengths（亮点）
+- improvements（待提升）
+- parent_suggestion（家长建议）
+- final_comment（最终评语）
+
+---
+
+### 6.5 批量生成
+
+路径：`/batch`
+
+步骤：
+
+1. 选择班级
+2. 选择模板
+3. 勾选学生
+4. 填统一附加要求
+5. 启动批量任务
+6. 查看进度（成功/失败）
+7. 对失败项重试
+8. 批量导出
+
+建议：先小批量（5~10 人）压测后再全班执行。
+
+---
+
+### 6.6 历史记录
+
+路径：`/history`
+
+用途：
+
+- 查看每次生成结果
+- 进入详情看快照
+- 再次编辑复用
+- 再次导出
+
+适合期末复盘与跨学期模板优化。
+
+---
+
+### 6.7 导出中心
+
+路径：`/exports`
+
+支持：
+
+- Word 导出
+- PDF 导出
+
+默认模板文件：
+
+- `public/templates/default-export-template.docx`
+- `public/templates/default-export-template.pdf`
+
+---
+
+### 6.8 系统设置
+
+路径：`/settings`
+
+可配置：
+
+- 学校名称
+- 默认模型
+- 温度 / 最大输出长度
+- 是否结构化输出
+- 提示词模板
+- 个人设置
+
+---
+
+## 7. OpenAI 接入说明（结构化输出）
+
+系统会要求模型按以下 JSON 返回：
+
+```json
+{
+  "summary_style": "string",
+  "strengths": "string",
+  "improvements": "string",
+  "parent_suggestion": "string",
+  "final_comment": "string"
+}
+```
+
+接入要点：
+
+1. 在 `.env.local` 配置 `OPENAI_API_KEY`
+2. 在设置页选择模型
+3. 通过模板 + 学生信息 + 补充要求控制风格
+
+---
+
+## 8. 飞书多维表格兼容层（预留）
+
+已预留：`lib/providers/data-provider.ts`
+
+包含：
+
+- `DataProvider` 接口
+- `SupabaseProvider`（当前默认）
+- `FeishuBaseProvider`（占位实现）
+
+后续接入步骤：
+
+1. 增加飞书应用凭证环境变量
+2. 实现模板/学生/评语 CRUD 对应 API
+3. 替换默认 provider 或加入 runtime 切换
+
+---
+
+## 9. 常见问题排查（FAQ）
+
+### Q1：`npm install` 失败怎么办？
+
+- 检查网络是否能访问 npm registry
+- 使用公司内网镜像源
+- 清理缓存再试：`npm cache clean --force`
+
+### Q2：登录提示邮箱或密码错误？
+
+演示账号密码固定：`123456`。
+
+### Q3：AI 一直是 mock 输出？
+
+说明 `OPENAI_API_KEY` 没配置成功，或服务不可达。
+
+### Q4：为什么有些接口是演示实现？
+
+当前版本是 MVP，先保障流程可跑通；你可在 provider 层替换为真实 Supabase / Feishu 数据源。
+
+---
+
+## 10. 开发建议（下一步）
+
+1. 补齐真实 Supabase 持久化与 RLS 策略
+2. 补齐审计日志 `audit_logs` 写入
+3. 补齐批量任务异步队列（重试/取消/并发控制）
+4. 补齐导入字段映射与错误报告
+5. 接入真正 docx / pdf 模板渲染
+
+---
+
+如果你希望，我下一步可以直接给你：
+
+- **“老师 30 分钟上手培训稿（可直接发微信群）”**
+- **“教务管理员部署 SOP（从建库到上线）”**
+- **“面向学校领导的功能演示脚本（含话术）”**
